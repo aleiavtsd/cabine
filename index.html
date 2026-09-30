@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Campaign OS</title>
+<title>Cabine</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
@@ -60,6 +60,7 @@ textarea{min-height:64px;resize:vertical}
 .big{font:800 26px "Bricolage Grotesque"}
 table{width:100%;border-collapse:collapse}td,th{padding:8px 6px;border-top:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}th{color:var(--mut);font-weight:600;border-top:0}
 ol.g{padding-left:20px;margin:0}ol.g li{margin:0 0 10px}ol.g b{display:block}.hint{margin:-8px 0 14px}
+button.seg{background:var(--panel);border:0;border-right:1px solid var(--line);font-family:inherit;text-align:left;cursor:pointer}button.seg:hover{filter:brightness(.96)}
 </style>
 </head>
 <body>
@@ -99,13 +100,13 @@ function view(){
  const c=S.c,now=todayISO(),ci=curPhase(c,now),left=Math.max(0,Math.round((c.open-now)/DAY));
  const total=c.phases[c.phases.length-1].e-c.start,pos=Math.min(100,Math.max(0,(now-c.start)/total*100));
  let h=`<div class="head"><div><div class="muted">${esc(c.name)}</div><h1>${esc(c.product)}</h1></div><div class="days"><b>${left}</b>dias para abrir<br>${fmt(c.open)}</div></div>
- <div class="track" aria-label="Linha do tempo da campanha">${c.phases.map((p,i)=>`<div class="seg ${i<ci?"past":i==ci?"on":""}" style="flex:${(p.e-p.s)/DAY}" title="${p.k}">${p.k}</div>`).join("")}<div class="pin" style="left:${pos}%"></div></div>
+ <div class="track" aria-label="Linha do tempo da campanha">${c.phases.map((p,i)=>`<button class="seg ${i<ci?"past":i==ci?"on":""}" style="flex:${(p.e-p.s)/DAY}" data-tab="mapa" title="${p.k}: ver tarefas">${p.k=="Encerramento"?"Fim":p.k}</button>`).join("")}<div class="pin" style="left:${pos}%"></div></div><p class="muted" style="margin:-18px 0 18px;font-size:14px">Toque numa fase para ver as tarefas. A linha laranja marca o dia de hoje.</p>
  <nav role="tablist">${[["hoje","Hoje"],["mapa","Mapa"],["oferta","Oferta"],["numeros","Números"],["provas","Provas"],["conteudo","Conteúdo"],["guia","Guia"]].map(([k,l])=>`<button role="tab" aria-selected="${S.tab==k}" data-tab="${k}">${l}</button>`).join("")}</nav>`;
  h+=HINT[S.tab]?`<p class="muted hint">${HINT[S.tab]}</p>`:"";
  h+={hoje:hoje,mapa:mapa,oferta:oferta,numeros:numeros,provas:provas,conteudo:conteudo,guia:guia}[S.tab](c,now,ci);
  a.innerHTML=h;
 }
-function onboard(){return `<div class="head"><h1>Campaign OS</h1></div><div class="card"><h2>Da estratégia à venda, em um só lugar</h2><p>Responda o diagnóstico abaixo, em cerca de 2 minutos. A ferramenta monta a rota, o plano e diz o que fazer hoje. Depois, você registra os números e recebe a próxima melhor ação.</p><p class="muted" style="margin:0">Seus dados ficam só neste navegador. Ninguém vê o que você preencher.</p></div><div class="card"><h2>Diagnóstico da campanha</h2>
+function onboard(){return `<div class="head"><h1>Cabine</h1></div><div class="card"><h2>Da estratégia à venda, em um só lugar</h2><p>Responda o diagnóstico abaixo, em cerca de 2 minutos. A ferramenta monta a rota, o plano e diz o que fazer hoje. Depois, você registra os números e recebe a próxima melhor ação.</p><p class="muted" style="margin:0">Seus dados ficam só neste navegador. Ninguém vê o que você preencher.</p></div><div class="card"><h2>Diagnóstico da campanha</h2>
 <label for="f1">O que você vai vender?</label><input type="text" id="f1" value="Mentoria de vendas no Instagram">
 <label for="f2">Para quem?</label><input type="text" id="f2" value="Infoprodutores iniciantes">
 <label for="f3">Qual transformação?</label><input type="text" id="f3" value="Sair do zero e vender todo mês">
@@ -149,7 +150,7 @@ function hoje(c,now,ci){
  const top=pend.slice(0,3);
  const late=pend.filter(t=>t.due<now).length;
  const unused=S.provas.filter(x=>!x.used).length;
- const d=diag(c,now,ci),x=real(c);let h=`<div class="card alert"><div class="muted">Próxima melhor ação</div><h2 style="margin:4px 0">${d[1]}</h2><span class="muted">${d[0]}</span></div><div class="card"><div class="row"><div><div class="muted">Meta</div><div class="big">${R(c.meta)}</div></div><div><div class="muted">Projeção atual</div><div class="big">${R(x.proj)}</div></div></div><p class="muted" style="margin:8px 0 0">Rota: ${route(c).n}</p></div><div class="card"><h2>${p.k}: próximas 3 ações</h2><p class="muted" style="margin-top:-4px">${p.o}</p>`;
+ const d=diag(c,now,ci),x=real(c);let h=`<div class="card alert"><div class="muted">Próxima melhor ação</div><h2 style="margin:4px 0">${d[1]}</h2><span class="muted">${d[0]}</span></div><div class="card"><div class="row"><div><div class="muted">Meta</div><div class="big">${R(c.meta)}</div></div><div><div class="muted">Projeção atual</div>${c.real.leads||c.real.sales?`<div class="big">${R(x.proj)}</div>`:`<div class="muted" style="margin-top:6px">Aparece depois que você registrar seus números.</div>`}</div></div><p class="muted" style="margin:8px 0 0">Rota: ${route(c).n}. A projeção estima quanto você fatura se mantiver o ritmo atual.</p></div><div class="card"><h2>${p.k}: próximas 3 ações</h2><p class="muted" style="margin-top:-4px">${p.o}</p>`;
  h+=top.length?top.map(t=>task(t,now)).join(""):`<p>Tudo em dia nesta fase. Vá ao Conteúdo e prepare a próxima.</p>`;
  h+=`</div>`;
  if(late)h+=`<div class="card alert"><b>${late} tarefa(s) atrasada(s).</b> <span class="muted">Reorganize os prazos a partir de hoje.</span><p><button class="btn ghost" id="resched">Reorganizar prazos</button></p></div>`;
